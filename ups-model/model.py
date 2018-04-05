@@ -38,6 +38,7 @@ delivery_day = {}
 title = list(sheet2.row[0])
 
 #hi
+print("hello world")
 
 for row in sheet2.rows:
     temp = []
