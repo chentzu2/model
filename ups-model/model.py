@@ -11,8 +11,8 @@ import math
 import openpyxl
 
 
-data = openpyxl.load_workbook('filename',read_only=True, data_only=True)
-sheet = data['Sheet1']
+data = openpyxl.load_workbook('cost_metrix',read_only=True, data_only=True)
+sheet = data['cost']
 
 cost_truck = {}
 title = list(sheet.rows[0])
