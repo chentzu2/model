@@ -44,8 +44,11 @@ sheet2 = data2['day']
 
 delivery_day = {}
 
+<<<<<<< HEAD
 #inputting require days for each ori to dest
 # structure would be like {ori:{dest: ***, dest2:***} ori2: {dest:...}}
+=======
+>>>>>>> origin/pear
 
 for row in sheet2.rows:
     temp = []
@@ -55,6 +58,7 @@ for row in sheet2.rows:
     ori = temp[0]
     temp.pop(0)
     delivery_day[ori] = {}
+<<<<<<< HEAD
     for i in range(len(title)):
         delivery_day[ori][title[i]] = []
         delivery_day[ori][title[i]].append(temp[i])
@@ -130,7 +134,13 @@ for row in sheet.rows:
     temp.pop(0)
     facility_cost[zipcode] = temp[0]
 
-#pear optimization code
+=======
+    for i in title:
+        delivery_day[ori][i] = temp[i]
+        
+        
+        
+ #pear optimization code
 
 #parameters
  #i = customer node i (clustered into 3-digits)
@@ -178,3 +188,10 @@ for row in sheet.rows:
  #constraint 4:
  #for all j:
  #x[1,c]+x[2,c]+x[3,c] <= Y[j]
+ 
+ 
+ 
+ 
+ 
+ 
+>>>>>>> origin/pear
