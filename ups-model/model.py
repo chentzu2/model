@@ -141,6 +141,28 @@ V = [20,150]#V[k] = [Vl, Vh] - value of LV and HV goods = [20,150]
 M = [1,2] #[air, truck]
 cost_air={1:cost_nda, 2:cust_sda}
 
+"""
+Berth Assignment Problem Model
+
+This version uses the relative position formulation, and
+minimizes only total completion time of all vessels
+
+Authors: Alan Erera 2014
+"""
+
+# Import PuLP modeler functions
+from pulp import *
+
+# Data Section
+CustLoc=[] #a set of customer locations
+Zip=[] # set of 3-digit zip code
+shipmax = 1 #change from next day to 2 days - connect to GUI
+F = 10000 #fixed cost to operate/open facility  
+M = [1,2] #[air, truck]
+costAir={1:cost_nda, 2:cust_sda} #{ori:{dest: ***, dest2:***} ori2: {dest:...}}
+trucktime= delivery_day #{} #delivery_day={ori:{dest: ***, dest2:***} ori2: {dest:...}}
+costTruck = cost_Truck #{ori:{dest: ***, dest2:***} ori2: {dest:...}}
+d = demand #{3digit: [high, low], ...}
 # Code Section
 
 # Create the 'prob' object to contain the problem data
@@ -149,62 +171,118 @@ cost_air={1:cost_nda, 2:cust_sda}
 
 # Decision variables
 
-x = LpVariable.dicts("X", (Zip, CustLoc, M, V),  cat=LpBinary) #x[i,j,m,k]  =  binary. 1 if i assigned to DC j served by mode m for k value goods; 0 otherwise
-y = LpVariable.dicts('Y', Zip,  cat = LpBinary) #y[j]  = binary. If facility j is open; 0 otherwise
+combo={}
+for i in CustLoc:
+	for j in Zip:
+		combo['route'] =(i,j)
+		combo['customer']=i
+		combo['facility']=j
 
-# Now the ship variables
-combo = LpVariable.dicts("route", (Zip, CustLoc, cat=Binary) #??
-tr = LpVariable.dicts("truckTravelTime",Zip,lowBound=0) #t[i,j,m] t={1:shipmax, 2:{delivery_day}} 1 = air, 2 = truck
-#delivery_day={ori:{dest: ***, dest2:***} ori2: {dest:...}}
-C = LpVariable.dicts("Cost",M,lowBound=0) #C[m[i,j]] C={1:cost_air,2:cost_truck} 1 = air, 2= truck
-d = LpVariable.dicts("Demand",Zip, lowBound =0) #d = demand // D[j,k]: demand of good type k at j {3digit: [high, low], ...}
-t = {1: shipmax, 2: tr}
-# Objective function
-# The objective function is always added to 'prob' first in PuLP
-#LpAfflineExpression
+for a,a_dict in combo.iteritems():
+	cl = a[0]
+	z = a[1]
+	
+	# varAH = pulp.LpVariable("AirHigh(%s,%s)"%(str(cl),str(z)), lowBound=0, cat=pulp.LpInteger)
+	# a_dict['dvAH'] = varAH
 
-#!!!!! fix objective function, see below
-# for a,a_dict in arcs.iteritems():
-# 	i = a[0]
-# 	j = a[1]
+	# varAL = pulp.LpVariable("AirLow(%s,%s)"%(str(cl),str(z)), lowBound=0, cat=pulp.LpInteger)
+	# a_dict['dvAL'] = varAL
+
+	# varTH = pulp.LpVariable("TruckHigh(%s,%s)"%(str(cl),str(z)), lowBound=0, cat=pulp.LpInteger)
+	# a_dict['dvTH'] = varTH
+
+	# varTL = pulp.LpVariable("TruckLow(%s,%s)"%(str(cl),str(z)), lowBound=0, cat=pulp.LpInteger)
+	# a_dict['dvTL'] = varTL
+
+	varAH = pulp.LpVariable("AirHigh(%s,%s)"%(str(cl),str(z)), lowBound=0, cat=pulp.LpInteger)
+	varAL = pulp.LpVariable("AirLow(%s,%s)"%(str(cl),str(z)), lowBound=0, cat=pulp.LpInteger)
+	varTH = pulp.LpVariable("TruckHigh(%s,%s)"%(str(cl),str(z)), lowBound=0, cat=pulp.LpInteger)
+	varTL = pulp.LpVariable("TruckLow(%s,%s)"%(str(cl),str(z)), lowBound=0, cat=pulp.LpInteger)
 	
-# 	# First create a total integer trailer flow variable, and tie it to the arc
-# 	var = pulp.LpVariable("TrailerFlow(%s,%s)" % (str(i),str(j)), lowBound = 0, cat=pulp.LpInteger)
-# 	a_dict['dvTrailerFlow'] = var
+	a_dict['dv']=[varAH, varAL, varTH, varTL]
+
+	objFn.append((varAH*D[cl][0]+varAL*D[cl][1])*costAir[shipmax][cl][z]*150 + (varTH*D[cl][0]+varAL*D[cl][1])*costTruck[cl][z]*20)
+
+FacilityLocations={}
+for j in Zip:
+	FacilityLocations['Location']=j
+
+for j,j_dict in FacilityLocations.iteritems():
+	dvLoc = pulp.LpVariable("Zip(%s)"%str(j), lowBound=0, upBound=1, cat=pulp.LpInteger)
+	j_dict["Locate?"] = dvLoc
+	objFn.append(dvLoc*F)
 	
-# 	# Add objective function term to objFn list variable
-# 	if a_dict['cost'] != 0 :
-# 		objFn.append(a_dict['cost']*var)
-	
-# 	# Create an empty dictionary inside the arc attributes dictionary
-# 	# to hold the fractional flow decision variables for each commodity
-# 	a_dict['dvFlows']={}
-# 	# Add a decision variable for each commodity k
-# 	for k in commods:
-# 		orig = k[0]
-# 		dest = k[1]
-# 		# Format for LpVariable("Name",lowBound,cat)
-# 		# Name will list the arc first, then the commodity; e.g.
-# 		# Arc_Flow('ATL,'DAL')_('Ath','CHI')
-# 		var = pulp.LpVariable("ArcFlow(%s,%s)_(%s,%s)" % (str(i),str(j),str(orig),str(dest)), lowBound = 0)
-			
-# 		# Add decision variable to the dictionary data structure
-# 		a_dict['dvFlows'][k] = var
-			
 
 # # The objective function is added to 'prob' first
 # # lpSum takes a list of coefficients*LpVariables and makes a summation
-# prob += pulp.lpSum(objFn), "Total Cost"
+prob += pulp.lpSum(objFn), "Total Cost"
 
-objFn.append(lpSum(y[i]*F for i in Zip), "Facility Build Cost")
+
+# Flow balance at all nodes for all commodities
+for k,k_dict in commods.iteritems():
+	orig = k[0]
+	dest = k[1]
+	for i in nodes:
+		# If i is the orig of the commodity, the net supply is q
+		if i == orig:
+			netsupply = k_dict['q']
+		elif i == dest:
+			netsupply = - k_dict['q']
+		else:
+			netsupply = 0
+			
+		# Create the flow balance constraint	
+		prob += pulp.lpSum(arcs[a]['dvFlows'][k] for a in nodes[i]['outArcs']) - pulp.lpSum(arcs[a]['dvFlows'][k] for a in nodes[i]['inArcs']) == netsupply, "Node %s Commodity (%s,%s) Flow Balance" % (str(i),str(orig),str(dest))
+
+# Round up the arc flows to trailer flows, across commodities
+for a,a_dict in arcs.iteritems():
+	i = a[0]
+	j = a[1]
+	# Sum over all of the commodity-specific arc flows
+	prob += pulp.lpSum(a_dict['dvFlows'][k] for k in commods) <= a_dict['dvTrailerFlow'], "Arc (%s,%s) Trailer Roundup" % (str(i),str(j))
+
+
+
 for m in M:
 	for i in Zip:
 		for j in CustLoc:
-			prob += lpSum([C[m][i][j]*d[j][val]*V[val]*x[i,j,m,val] for val in V]), "Cost to transport"
+			objFn.append(([C[m][i][j]*d[j][val]*V[val]*x[i,j,m,val] for val in V]), "Cost to transport")
 
  #objective function
  #V[k]*C[i,j,m]*D[i,k]*x[i,j,m,k]   +F*y[j]
 #C= {ori:{dest: ***, dest2:***} ori2: {dest:...}}
+
+for a,a_dict in Combo.iteritems():
+	origin=a['route'][1] #zip
+	dest=a['route'][0] #customer
+
+	prob +=LpSum(a['dvAH']+a['dvAL']+a['dvTH']+a['dvTL']>=1) #for all i,j: sum[m,k](x[i,j,m,k])>=1
+
+for i in CustLoc:
+	for a,a_dict in combo.iterItems():
+		if a['customer']==i:
+
+
+
+
+
+
+
+
+
+
+
+
+a_dict['dvAirHighFlow'] = varAH
+
+	varAL = pulp.LpVariable("AirLow(%s,%s)"%(str(cl),str(z)), lowBound=0, cat=pulp.LpInteger)
+	a_dict['dvAirLowFlow'] = varAL
+
+	varTH = pulp.LpVariable("TruckHigh(%s,%s)"%(str(cl),str(z)), lowBound=0, cat=pulp.LpInteger)
+	a_dict['dvTruckHighFlow'] = varTH
+
+	varTL = pulp.LpVariable("TruckLow(%s,%s)"%(str(cl),str(z)), lowBound=0, cat=pulp.LpInteger)
+	a_dict['dvTruckLowFlow'] = varTL
 
 #constraint 1
 for i in Zip:
@@ -220,11 +298,6 @@ for i in Zip:
      #for all i,j,m,k: t[i,j,m]<=2+M*(1-x[i,j,m,k]) 
 
  #constraint 2
- for i in Zip:
- 	for j in CustLoc:
- 		for m in M:
- 			prob+= LpSum(x[i,j,m,k] for k in V) >=1
- 		 #for all i,j: sum[m,k](x[i,j,m,k])>=1
  
  #constraint 3
  for j in CustLoc:
@@ -253,11 +326,3 @@ print "Status:", LpStatus[prob.status]
 
 # The optimised objective function value is printed to the screen    
 print "Total Cost = ", value(prob.objective)
-
-	
- 
-
- 
- 
- 
- 
