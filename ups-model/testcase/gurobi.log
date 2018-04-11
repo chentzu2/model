@@ -1,0 +1,20 @@
+
+Gurobi 7.5.2 (win64, Python) logging started 04/10/18 21:56:49
+
+Academic license - for non-commercial use only
+Optimize a model with 7182 rows, 7098 columns and 21210 nonzeros
+Variable types: 0 continuous, 7098 integer (0 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 1e+07]
+  Objective range  [3e-01, 6e+06]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+00, 1e+07]
+Presolve time: 0.00s
+
+Explored 0 nodes (0 simplex iterations) in 0.02 seconds
+Thread count was 1 (of 8 available processors)
+
+Solution count 0
+
+Model is infeasible
+Best objective -, best bound -, gap -
