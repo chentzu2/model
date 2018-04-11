@@ -6,6 +6,8 @@ Created on Tue Apr  3 21:08:04 2018
 Project name: UPS Optimization Model for Network Design
 """
 
+#testing github desktop
+
 import pulp
 import math
 import openpyxl
@@ -260,7 +262,7 @@ print "Total Cost = ", value(prob.objective)
  
  
  
- <<<<<<< HEAD
+<<<<<<< HEAD
  
 =======
  #constraint 4:
