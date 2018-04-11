@@ -132,118 +132,62 @@ for row in sheet.rows:
     temp.pop(0)
     facility_cost[zipcode] = temp[0]
     
-
 #pear optimization code
 
 # Data Section
-CustLoc=[] #a set of customer locations
-Zip=[] # set of 3-digit zip code
+CustLoc=list(demand.keys()) #a set of customer locations
+Zip=title # set of 3-digit zip code
 shipmax = 1 #change from next day to 2 days - connect to GUI
-F = 10000 #fixed cost to operate/open facility  
-
+F =   24243148 #fixed cost to operate/open facility  
 travelMode = [1,2] #[air, truck]
 M=10000000
 costAir={1:cost_nda, 2:cost_sda} #{ori:{dest: ***, dest2:***} ori2: {dest:...}}
 trucktime= delivery_day #{} #delivery_day={ori:{dest: ***, dest2:***} ori2: {dest:...}}
 costTruck = cost_truck #{ori:{dest: ***, dest2:***} ori2: {dest:...}}
 d = demand #{3digit: [high, low], ...}
-
-V = [20,150]#V[k] = [Vl, Vh] - value of LV and HV goods = [20,150]
-M = [1,2] #[air, truck]
-cost_air={1:cost_nda, 2:cost_sda}
-
-
 # Code Section
 
 # Create the 'prob' object to contain the problem data
  #create prob object to contain optimization problem data
-problem = pulp.LpProblem("Facility Location Plan", pulp.LpMinimize)
+prob = pulp.LpProblem("Facility Location Plan", pulp.LpMinimize)
 
+objFn=[]
 # Decision variables
 
-
 combo={} #={(1,2):{'route}}
-for i,j in zip(Zip, CustLoc):
-	combo[(i,j)]:{} #origin, destination 
+for i in Zip:
+    for j in CustLoc:
+        combo[(i,j)]={'location':i, 'customer':j} #origin, destination 
+
 
 for a,a_dict in combo.items():
-	z = a[0]
-	cl = a[1]
+    z = a[0]
+    cl = a[1]
 
-	varAH = pulp.LpVariable("AirHigh(%s,%s)"%(str(z),str(cl)), lowBound=0, cat='Binary')
-	varAL = pulp.LpVariable("AirLow(%s,%s)"%(str(z),str(cl)), lowBound=0, cat='Binary')
-	varTH = pulp.LpVariable("TruckHigh(%s,%s)"%(str(z),str(cl)), lowBound=0, cat='Binary')
-	varTL = pulp.LpVariable("TruckLow(%s,%s)"%(str(z),str(cl)), lowBound=0, cat='Binary')
+    varAH = pulp.LpVariable("AirHigh(%s,%s)"%(str(z),str(cl)), lowBound=0, cat='Binary')
+    varAL = pulp.LpVariable("AirLow(%s,%s)"%(str(z),str(cl)), lowBound=0, cat='Binary')
+    varTH = pulp.LpVariable("TruckHigh(%s,%s)"%(str(z),str(cl)), lowBound=0, cat='Binary')
+    varTL = pulp.LpVariable("TruckLow(%s,%s)"%(str(z),str(cl)), lowBound=0, cat='Binary')
 
-	# a_dict['dvAH'] = varAH
-	# a_dict['dvAL'] = varAL
-	# a_dict['dvTH'] = varTH
-	# a_dict['dvTL'] = varTL	
-	#value = [l,h]
-	a_dict['dv']=[varAH, varAL, varTH, varTL]
-	objFn.append((varAH*d[cl][0]+varAL*d[cl][1])*costAir[shipmax][z][cl]*150 + (varTH*D[cl][0]+varAL*D[cl][1])*costTruck[z][cl]*20)
+    # a_dict['dvAH'] = varAH
+    # a_dict['dvAL'] = varAL
+    # a_dict['dvTH'] = varTH
+    # a_dict['dvTL'] = varTL    
+    #value = [l,h]
+    a_dict['dv']=[varAH, varAL, varTH, varTL]
+    fn=(varAH*float(d[cl][0])*150+varAL*float(d[cl][1])*20)*float(costAir[shipmax][z][cl][0]) + (varTH*float(d[cl][0])*150+varTL*float(d[cl][1])*20)*float(costTruck[z][cl][0])
+    print(fn)
+    objFn.append(fn)
 
 
 FacilityLocations={}
+
 for j in Zip:
-	dvLoc = pulp.LpVariable("Zip(%s)"%str(j), lowBound=0, upBound=1, cat='Binary')
-	FacilityLocations[j] = dvLoc
-	objFn.append(dvLoc*F)
+    dvLoc = pulp.LpVariable("Zip(%s)"%str(j), lowBound=0, upBound=1, cat='Binary')
+    FacilityLocations[j] = dvLoc
+    objFn.append(dvLoc*F)
 
 prob += pulp.lpSum(objFn), "Total Cost"
-
-x = pulp.LpVariable.dicts("X", (Zip, CustLoc, M, V),  cat=pulp.LpBinary) #x[i,j,m,k]  =  binary. 1 if i assigned to DC j served by mode m for k value goods; 0 otherwise
-y = pulp.LpVariable.dicts('Y', Zip,  cat = pulp.LpBinary) #y[j]  = binary. If facility j is open; 0 otherwise
-
-# Now the ship variables
-combo = pulp.LpVariable.dicts("route", (Zip, CustLoc), cat=pulp.LpBinary) #??
-tr = pulp.LpVariable.dicts("truckTravelTime",Zip,lowBound=0) #t[i,j,m] t={1:shipmax, 2:{delivery_day}} 1 = air, 2 = truck
-#delivery_day={ori:{dest: ***, dest2:***} ori2: {dest:...}}
-C = pulp.LpVariable.dicts("Cost",M,lowBound=0) #C[m[i,j]] C={1:cost_air,2:cost_truck} 1 = air, 2= truck
-d = pulp.LpVariable.dicts("Demand",Zip, lowBound =0) #d = demand // D[j,k]: demand of good type k at j {3digit: [high, low], ...}
-t = {1: shipmax, 2: tr}
-# Objective function
-# The objective function is always added to 'prob' first in PuLP
-#LpAfflineExpression
-
-#!!!!! fix objective function, see below
-# for a,a_dict in arcs.iteritems():
-# 	i = a[0]
-# 	j = a[1]
-	
-# 	# First create a total integer trailer flow variable, and tie it to the arc
-# 	var = pulp.LpVariable("TrailerFlow(%s,%s)" % (str(i),str(j)), lowBound = 0, cat=pulp.LpInteger)
-# 	a_dict['dvTrailerFlow'] = var
-	
-# 	# Add objective function term to objFn list variable
-# 	if a_dict['cost'] != 0 :
-# 		objFn.append(a_dict['cost']*var)
-	
-# 	# Create an empty dictionary inside the arc attributes dictionary
-# 	# to hold the fractional flow decision variables for each commodity
-# 	a_dict['dvFlows']={}
-# 	# Add a decision variable for each commodity k
-# 	for k in commods:
-# 		orig = k[0]
-# 		dest = k[1]
-# 		# Format for LpVariable("Name",lowBound,cat)
-# 		# Name will list the arc first, then the commodity; e.g.
-# 		# Arc_Flow('ATL,'DAL')_('Ath','CHI')
-# 		var = pulp.LpVariable("ArcFlow(%s,%s)_(%s,%s)" % (str(i),str(j),str(orig),str(dest)), lowBound = 0)
-			
-# 		# Add decision variable to the dictionary data structure
-# 		a_dict['dvFlows'][k] = var
-			
-
-# # The objective function is added to 'prob' first
-# # lpSum takes a list of coefficients*LpVariables and makes a summation
-# prob += pulp.lpSum(objFn), "Total Cost"
-
-objFn.append(lpSum(y[i]*F for i in Zip), "Facility Build Cost")
-for m in M:
-	for i in Zip:
-		for j in CustLoc:
-			prob += pulp.lpSum([C[m][i][j]*d[j][val]*V[val]*x[i,j,m,val] for val in V]), "Cost to transport"
 
 
  #objective function
@@ -251,79 +195,59 @@ for m in M:
 #C= {ori:{dest: ***, dest2:***} ori2: {dest:...}}
 
 for a,a_dict in combo.items():
-	origin=a['route'][1] #zip
-	dest=a['route'][0] #customer
+    origin=a[1] #zip
+    dest=a[0] #customer
 
-prob += pulp.lpSum(objFn), "Total Cost"
 #[varAH, varAL, varTH, varTL]
 #combo={(1,2):{'customer':1, 'location':2, 'dv':[1,0,0,0]},(1,3):{'customer':1, 'location':3, 'dv':[0,0,0,0]}}
 #combo ={(i,j):{'customer':i, 'location':j,'dv':[x1,x2,x3,x4]}}
 
 
 #constraint 1
-for i,j in zip(Zip, CustLoc):
-	prob+= shipmax <= shipmax + M*(1-combo[(i,j)]['dv'][0]) #air,high
-	prob+= shipmax <=shipmax + M*(1-combo[(i,j)]['dv'][1]) #air, low
-	prob += trucktime[i][j] <= shipmax + M*(1-combo[(i,j)]['dv'][2])#truck, high
-	prob += trucktime[i][j] <= shipmax + M*(1-combo[(i,j)]['dv'][3]) #truck, low
-     #for all i,j,m,k: t[i,j,m]<=1+M*(1-x[i,j,m,k])
-     #for all i,j,m,k: t[i,j,m]<=2+M*(1-x[i,j,m,k]) 
+for i in Zip:
+    for j in CustLoc:
+        prob+= pulp.lpSum(shipmax) <= shipmax + M*(1-combo[(i,j)]['dv'][0]) #air,high
+        prob+= pulp.lpSum(shipmax) <=shipmax + M*(1-combo[(i,j)]['dv'][1]) #air, low
+        prob += pulp.lpSum(float(trucktime[i][j][0])) <= shipmax + M*(1-combo[(i,j)]['dv'][2])#truck, high
+        prob += pulp.lpSum(float(trucktime[i][j][0])) <= shipmax + M*(1-combo[(i,j)]['dv'][3]) #truck, low
+         #for all i,j,m,k: t[i,j,m]<=1+M*(1-x[i,j,m,k])
+#     #for all i,j,m,k: t[i,j,m]<=2+M*(1-x[i,j,m,k]) 
+
+#all customers with demand fulfilled?
+#for j in CustLoc:
+#    if sum(d[j])>0:
+#        prob+=pulp.lpSum(combo[(i,j)]['dv'] for i in Zip) >=1
 
 #constraint 2
 #obj['dv'] for route,obj in combo.items() if obj['customer'] == i
 for i in CustLoc:
-	low=[]
-	high=[]
-	for a,a_dict in combo.iterItems():
-		if a['customer']==i:
-			low += [a['dv'][1], a['dv'][3]]
-			high += [a['dv'][0], a['dv'][2]]
-	prob+= pulp.lpSum(low) ==1
-	prob+= pulp.lpSum(high) ==1
-    
+    low=[]
+    high=[]
+    for a,a_dict in combo.items():
+        if combo[a]['customer']==i:
+            low += [combo[a]['dv'][1], combo[a]['dv'][3]]
+            high += [combo[a]['dv'][0], combo[a]['dv'][2]]
+    prob+= pulp.lpSum(sum(low))==1
+    prob+= pulp.lpSum(sum(high))==1
+
 #constraint 3
 for i in Zip:
- 	prob += LpSum(sum(combo[(i,j)]['dv']) for j in CustLoc) <= M*y[i]
-
- #constraint 2
-for i in Zip:
- 	for j in CustLoc:
- 		for m in M:
- 			prob+= pulp.LpSum(x[i,j,m,k] for k in V) >=1
- 		 #for all i,j: sum[m,k](x[i,j,m,k])>=1
- 
- #constraint 3
-for j in CustLoc:
- 	for m in M:
- 		for k in V:
- 			prob+=pulp.LpSum(x[i,j,m,k] for i in Zip) <=M*y[j]
-
- #for all j: sum[k,m,i](x[i,j,m,k])<=M[j]
+    prob += pulp.lpSum(combo[(i,j)]['dv'] for j in CustLoc) <= M*FacilityLocations[i]
+## #for all j: sum[k,m,i](x[i,j,m,k])<=M[j]
 
 # Write out as a .LP file
 prob.writeLP("UPS_network.lp")
 
 # The problem is solved using PuLP's choice of Solver
-prob.solve(GUROBI())
+prob.solve(pulp.GUROBI())
 #prob.solve()
 
-# The status of the solution is printed to the screen
 print ("Status:", pulp.LpStatus[prob.status])
 
-# Each of the variables is printed with it's resolved optimum value
-# for a in x:
-#     print( v.name, "=", v.varValue)
+for v in prob.variables():
+    if v.varValue >0:
+        print(v.name, "=", v.varValue)
+
 #print out only locations that were planted. also print out #no.
-
   
-#print "Total Cost = ", value(prob.objective)
-
-
-# The optimised objective function value is printed to the screen    
-print ("Total Cost = ", value(prob.objective))
-
-	
- 
-
- 
- 
+print ("Total Cost = ", pulp.value(prob.objective))
