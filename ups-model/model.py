@@ -260,4 +260,10 @@ print "Total Cost = ", value(prob.objective)
  
  
  
+ <<<<<<< HEAD
  
+=======
+ #constraint 4:
+ #for all j:
+ #x[1,c]+x[2,c]+x[3,c] <= Y[j]
+>>>>>>> origin/rachel
