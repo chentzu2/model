@@ -217,7 +217,7 @@ for j in CustLoc:
     if sum(d[j])>=0:
         print(sum(d[j]))
         print(sum(combo[(i,j)]['dv']) for i in Zip)
-        prob+=pulp.lpSum(((combo[(i,j)]['dv']) for i in Zip) <=1)
+        prob+=pulp.lpSum(((combo[(i,j)]['dv']) for i in Zip)) <=1
 
 #constraint 2
 #obj['dv'] for route,obj in combo.items() if obj['customer'] == i

@@ -600,3 +600,23 @@ Solution count 1: 0
 
 Optimal solution found (tolerance 1.00e-04)
 Best objective 0.000000000000e+00, best bound 0.000000000000e+00, gap 0.0000%
+
+Gurobi 7.5.2 (win64, Python) logging started 04/11/18 14:38:23
+
+Academic license - for non-commercial use only
+Optimize a model with 42 rows, 7056 columns and 7056 nonzeros
+Variable types: 0 continuous, 7056 integer (0 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 1e+00]
+  Objective range  [1e+07, 1e+07]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+00, 1e+00]
+Found heuristic solution: objective -1.00000e+07
+
+Explored 0 nodes (0 simplex iterations) in 0.08 seconds
+Thread count was 1 (of 4 available processors)
+
+Solution count 1: -1e+07 
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective -1.000000000000e+07, best bound -1.000000000000e+07, gap 0.0000%
