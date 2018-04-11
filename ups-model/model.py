@@ -141,25 +141,25 @@ shipmax = 1 #change from next day to 2 days - connect to GUI
 F = 10000 #fixed cost to operate/open facility  
 V = [20,150]#V[k] = [Vl, Vh] - value of LV and HV goods = [20,150]
 M = [1,2] #[air, truck]
-cost_air={1:cost_nda, 2:cust_sda}
+cost_air={1:cost_nda, 2:cost_sda}
 
 # Code Section
 
 # Create the 'prob' object to contain the problem data
  #create prob object to contain optimization problem data
- problem = pulp.LpProblem("Facility Location Plan", pulp.LpMinimize)
+problem = pulp.LpProblem("Facility Location Plan", pulp.LpMinimize)
 
 # Decision variables
 
-x = LpVariable.dicts("X", (Zip, CustLoc, M, V),  cat=LpBinary) #x[i,j,m,k]  =  binary. 1 if i assigned to DC j served by mode m for k value goods; 0 otherwise
-y = LpVariable.dicts('Y', Zip,  cat = LpBinary) #y[j]  = binary. If facility j is open; 0 otherwise
+x = pulp.LpVariable.dicts("X", (Zip, CustLoc, M, V),  cat=LpBinary) #x[i,j,m,k]  =  binary. 1 if i assigned to DC j served by mode m for k value goods; 0 otherwise
+y = pulp.LpVariable.dicts('Y', Zip,  cat = LpBinary) #y[j]  = binary. If facility j is open; 0 otherwise
 
 # Now the ship variables
-combo = LpVariable.dicts("route", (Zip, CustLoc, cat=Binary) #??
-tr = LpVariable.dicts("truckTravelTime",Zip,lowBound=0) #t[i,j,m] t={1:shipmax, 2:{delivery_day}} 1 = air, 2 = truck
+combo = pulp.LpVariable.dicts("route", (Zip, CustLoc), cat=LpBinary) #??
+tr = pulp.LpVariable.dicts("truckTravelTime",Zip,lowBound=0) #t[i,j,m] t={1:shipmax, 2:{delivery_day}} 1 = air, 2 = truck
 #delivery_day={ori:{dest: ***, dest2:***} ori2: {dest:...}}
-C = LpVariable.dicts("Cost",M,lowBound=0) #C[m[i,j]] C={1:cost_air,2:cost_truck} 1 = air, 2= truck
-d = LpVariable.dicts("Demand",Zip, lowBound =0) #d = demand // D[j,k]: demand of good type k at j {3digit: [high, low], ...}
+C = pulp.LpVariable.dicts("Cost",M,lowBound=0) #C[m[i,j]] C={1:cost_air,2:cost_truck} 1 = air, 2= truck
+d = pulp.LpVariable.dicts("Demand",Zip, lowBound =0) #d = demand // D[j,k]: demand of good type k at j {3digit: [high, low], ...}
 t = {1: shipmax, 2: tr}
 # Objective function
 # The objective function is always added to 'prob' first in PuLP
@@ -198,11 +198,11 @@ t = {1: shipmax, 2: tr}
 # # lpSum takes a list of coefficients*LpVariables and makes a summation
 # prob += pulp.lpSum(objFn), "Total Cost"
 
-objFn.append(lpSum(y[i]*F for i in Zip), "Facility Build Cost")
+pulp.objFn.append(lpSum(y[i]*F for i in Zip), "Facility Build Cost")
 for m in M:
 	for i in Zip:
 		for j in CustLoc:
-			prob += lpSum([C[m][i][j]*d[j][val]*V[val]*x[i,j,m,val] for val in V]), "Cost to transport"
+			prob += pulp.lpSum([C[m][i][j]*d[j][val]*V[val]*x[i,j,m,val] for val in V]), "Cost to transport"
 
  #objective function
  #V[k]*C[i,j,m]*D[i,k]*x[i,j,m,k]   +F*y[j]
@@ -222,17 +222,17 @@ for i in Zip:
      #for all i,j,m,k: t[i,j,m]<=2+M*(1-x[i,j,m,k]) 
 
  #constraint 2
- for i in Zip:
+for i in Zip:
  	for j in CustLoc:
  		for m in M:
- 			prob+= LpSum(x[i,j,m,k] for k in V) >=1
+ 			prob+= pulp.LpSum(x[i,j,m,k] for k in V) >=1
  		 #for all i,j: sum[m,k](x[i,j,m,k])>=1
  
  #constraint 3
- for j in CustLoc:
+for j in CustLoc:
  	for m in M:
  		for k in V:
- 			prob+=LpSum(x[i,j,m,k] for i in Zip) <=M*y[j]
+ 			prob+=pulp.LpSum(x[i,j,m,k] for i in Zip) <=M*y[j]
  #for all j: sum[k,m,i](x[i,j,m,k])<=M[j]
  #M = big number
 
@@ -246,7 +246,7 @@ prob.solve(GUROBI())
 #prob.solve()
 
 # The status of the solution is printed to the screen
-print "Status:", LpStatus[prob.status]
+print ("Status:", pulp.LpStatus[prob.status])
 
 # Each of the variables is printed with it's resolved optimum value
 # for a in x:
@@ -254,14 +254,14 @@ print "Status:", LpStatus[prob.status]
 #print out only locations that were planted. also print out #no.
 
 # The optimised objective function value is printed to the screen    
-print "Total Cost = ", value(prob.objective)
+print ("Total Cost = ", value(prob.objective))
 
 	
  
 
  
  
- 
+""" 
 <<<<<<< HEAD
  
 =======
@@ -269,3 +269,4 @@ print "Total Cost = ", value(prob.objective)
  #for all j:
  #x[1,c]+x[2,c]+x[3,c] <= Y[j]
 >>>>>>> origin/rachel
+"""
