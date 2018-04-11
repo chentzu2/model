@@ -620,3 +620,102 @@ Solution count 1: -1e+07
 
 Optimal solution found (tolerance 1.00e-04)
 Best objective -1.000000000000e+07, best bound -1.000000000000e+07, gap 0.0000%
+Optimize a model with 7224 rows, 7098 columns and 28266 nonzeros
+Variable types: 0 continuous, 7098 integer (0 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 1e+07]
+  Objective range  [3e+00, 2e+06]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+00, 1e+07]
+Presolve removed 7056 rows and 3528 columns
+Presolve time: 0.06s
+
+Explored 0 nodes (0 simplex iterations) in 0.14 seconds
+Thread count was 1 (of 4 available processors)
+
+Solution count 0
+
+Model is infeasible
+Best objective -, best bound -, gap -
+Optimize a model with 7224 rows, 7098 columns and 28266 nonzeros
+Variable types: 0 continuous, 7098 integer (0 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 1e+07]
+  Objective range  [3e+00, 2e+06]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+00, 1e+07]
+Presolve removed 7056 rows and 3528 columns
+Presolve time: 0.02s
+
+Explored 0 nodes (0 simplex iterations) in 0.05 seconds
+Thread count was 1 (of 4 available processors)
+
+Solution count 0
+
+Model is infeasible
+Best objective -, best bound -, gap -
+Optimize a model with 7182 rows, 7098 columns and 21210 nonzeros
+Variable types: 0 continuous, 7098 integer (0 binary)
+Coefficient statistics:
+  Matrix range     [1e+00, 1e+07]
+  Objective range  [3e+00, 2e+06]
+  Bounds range     [1e+00, 1e+00]
+  RHS range        [1e+00, 1e+07]
+Found heuristic solution: objective 5602388.3643
+Presolve removed 7056 rows and 3528 columns
+Presolve time: 0.11s
+Presolved: 126 rows, 3570 columns, 7098 nonzeros
+Found heuristic solution: objective 3762326.1247
+Variable types: 0 continuous, 3570 integer (3570 binary)
+
+Root relaxation: objective 1.000000e+05, 268 iterations, 0.05 seconds
+
+    Nodes    |    Current Node    |     Objective Bounds      |     Work
+ Expl Unexpl |  Obj  Depth IntInf | Incumbent    BestBd   Gap | It/Node Time
+
+     0     0 100000.0000    0   41 3762326.12 100000.0000  97.3%     -    0s
+H    0     0                    3014838.7681 100000.0000  96.7%     -    0s
+H    0     0                    2933622.7240 100000.0000  96.6%     -    0s
+H    0     0                    298533.64073 100000.0000  66.5%     -    0s
+     0     0 140620.304    0   93 298533.641 140620.304  52.9%     -    0s
+     0     0 141707.754    0  148 298533.641 141707.754  52.5%     -    0s
+     0     0 141717.151    0  144 298533.641 141717.151  52.5%     -    0s
+     0     0 172319.701    0  130 298533.641 172319.701  42.3%     -    0s
+     0     0 172676.588    0  146 298533.641 172676.588  42.2%     -    0s
+     0     0 172684.316    0  146 298533.641 172684.316  42.2%     -    0s
+     0     0 188026.097    0  181 298533.641 188026.097  37.0%     -    0s
+     0     0 188485.042    0  196 298533.641 188485.042  36.9%     -    0s
+     0     0 188549.169    0  200 298533.641 188549.169  36.8%     -    0s
+     0     0 200592.284    0  234 298533.641 200592.284  32.8%     -    0s
+     0     0 201114.259    0  236 298533.641 201114.259  32.6%     -    0s
+     0     0 201167.956    0  244 298533.641 201167.956  32.6%     -    0s
+     0     0 211620.646    0  305 298533.641 211620.646  29.1%     -    0s
+     0     0 213312.468    0  314 298533.641 213312.468  28.5%     -    0s
+     0     0 213418.630    0  338 298533.641 213418.630  28.5%     -    0s
+     0     0 221073.391    0  355 298533.641 221073.391  25.9%     -    0s
+     0     0 222671.202    0  386 298533.641 222671.202  25.4%     -    0s
+     0     0 222736.382    0  371 298533.641 222736.382  25.4%     -    0s
+     0     0 230860.258    0  428 298533.641 230860.258  22.7%     -    0s
+     0     0 231480.384    0  414 298533.641 231480.384  22.5%     -    0s
+     0     0 231653.027    0  470 298533.641 231653.027  22.4%     -    0s
+     0     0 237986.890    0  436 298533.641 237986.890  20.3%     -    0s
+     0     0 238288.767    0  443 298533.641 238288.767  20.2%     -    0s
+     0     0 243561.895    0  534 298533.641 243561.895  18.4%     -    0s
+     0     0 243561.895    0  534 298533.641 243561.895  18.4%     -    0s
+     0     2 243561.895    0  534 298533.641 243561.895  18.4%     -    1s
+*   86    29              43    264591.18822 247151.124  6.59%  26.0    1s
+
+Cutting planes:
+  Cover: 153
+  Clique: 325
+  MIR: 89
+  StrongCG: 5
+  Zero half: 1
+
+Explored 123 nodes (5167 simplex iterations) in 1.42 seconds
+Thread count was 4 (of 4 available processors)
+
+Solution count 6: 264591 298534 2.93362e+06 ... 4.05234e+06
+
+Optimal solution found (tolerance 1.00e-04)
+Best objective 2.645911882200e+05, best bound 2.645911882200e+05, gap 0.0000%

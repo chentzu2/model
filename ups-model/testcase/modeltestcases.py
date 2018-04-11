@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Apr  3 21:08:04 2018
-
 @author: Tzu-Ying, Pear, Yi
 Project name: UPS Optimization Model for Network Design
 """
@@ -213,12 +212,6 @@ for i in Zip:
          #for all i,j,m,k: t[i,j,m]<=1+M*(1-x[i,j,m,k])
 #     #for all i,j,m,k: t[i,j,m]<=2+M*(1-x[i,j,m,k]) 
 
-<<<<<<< HEAD
-for j in CustLoc:
-    if sum(d[j])>=0:
-        print(sum(d[j]))
-        print(sum(combo[(i,j)]['dv']) for i in Zip)
-        prob+=pulp.lpSum(((combo[(i,j)]['dv']) for i in Zip)) <=1
 #all customers with demand fulfilled?
 #for j in CustLoc:
 #    if sum(d[j])>0:
