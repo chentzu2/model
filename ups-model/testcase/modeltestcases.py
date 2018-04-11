@@ -211,24 +211,30 @@ for i in Zip:
         prob += pulp.lpSum(float(trucktime[i][j][0]) <= shipmax + M*(1-combo[(i,j)]['dv'][2]))#truck, high
         prob += pulp.lpSum(float(trucktime[i][j][0]) <= shipmax + M*(1-combo[(i,j)]['dv'][3])) #truck, low
          #for all i,j,m,k: t[i,j,m]<=1+M*(1-x[i,j,m,k])
-     #for all i,j,m,k: t[i,j,m]<=2+M*(1-x[i,j,m,k]) 
+#     #for all i,j,m,k: t[i,j,m]<=2+M*(1-x[i,j,m,k]) 
+
+for j in CustLoc:
+    if sum(d[j])>=0:
+        print(sum(d[j]))
+        print(sum(combo[(i,j)]['dv']) for i in Zip)
+        prob+=pulp.lpSum(((combo[(i,j)]['dv']) for i in Zip) <=1)
 
 #constraint 2
 #obj['dv'] for route,obj in combo.items() if obj['customer'] == i
-for i in CustLoc:
-    low=[]
-    high=[]
-    for a,a_dict in combo.items():
-        if combo[a]['customer']==i:
-            low += [combo[a]['dv'][1], combo[a]['dv'][3]]
-            high += [combo[a]['dv'][0], combo[a]['dv'][2]]
-    prob+= pulp.lpSum(sum(low) ==1)
-    prob+= pulp.lpSum(sum(high) ==1)
+#for i in CustLoc:
+#    low=[]
+#    high=[]
+#    for a,a_dict in combo.items():
+#        if combo[a]['customer']==i:
+#            low += [combo[a]['dv'][1], combo[a]['dv'][3]]
+#            high += [combo[a]['dv'][0], combo[a]['dv'][2]]
+#    prob+= pulp.lpSum(sum(low) ==1)
+#    prob+= pulp.lpSum(sum(high) ==1)
 
 #constraint 3
-for i in Zip:
-    prob += pulp.lpSum((combo[(i,j)]['dv'] for j in CustLoc) <= M*FacilityLocations[i])
-# #for all j: sum[k,m,i](x[i,j,m,k])<=M[j]
+#for i in Zip:
+#    prob += pulp.lpSum((combo[(i,j)]['dv'] for j in CustLoc) <= M*FacilityLocations[i])
+## #for all j: sum[k,m,i](x[i,j,m,k])<=M[j]
 
 # Write out as a .LP file
 prob.writeLP("UPS_network.lp")
