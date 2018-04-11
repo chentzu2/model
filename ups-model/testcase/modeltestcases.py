@@ -137,7 +137,7 @@ for row in sheet.rows:
 CustLoc=list(demand.keys()) #a set of customer locations
 Zip=title # set of 3-digit zip code
 shipmax = 1 #change from next day to 2 days - connect to GUI
-F = 100000 #fixed cost to operate/open facility  
+F = 24243148 #fixed cost to operate/open facility  
 travelMode = [1,2] #[air, truck]
 M=10000000
 costAir={1:cost_nda, 2:cost_sda} #{ori:{dest: ***, dest2:***} ori2: {dest:...}}
