@@ -151,11 +151,11 @@ problem = pulp.LpProblem("Facility Location Plan", pulp.LpMinimize)
 
 # Decision variables
 
-x = pulp.LpVariable.dicts("X", (Zip, CustLoc, M, V),  cat=LpBinary) #x[i,j,m,k]  =  binary. 1 if i assigned to DC j served by mode m for k value goods; 0 otherwise
-y = pulp.LpVariable.dicts('Y', Zip,  cat = LpBinary) #y[j]  = binary. If facility j is open; 0 otherwise
+x = pulp.LpVariable.dicts("X", (Zip, CustLoc, M, V),  cat=pulp.LpBinary) #x[i,j,m,k]  =  binary. 1 if i assigned to DC j served by mode m for k value goods; 0 otherwise
+y = pulp.LpVariable.dicts('Y', Zip,  cat = pulp.LpBinary) #y[j]  = binary. If facility j is open; 0 otherwise
 
 # Now the ship variables
-combo = pulp.LpVariable.dicts("route", (Zip, CustLoc), cat=LpBinary) #??
+combo = pulp.LpVariable.dicts("route", (Zip, CustLoc), cat=pulp.LpBinary) #??
 tr = pulp.LpVariable.dicts("truckTravelTime",Zip,lowBound=0) #t[i,j,m] t={1:shipmax, 2:{delivery_day}} 1 = air, 2 = truck
 #delivery_day={ori:{dest: ***, dest2:***} ori2: {dest:...}}
 C = pulp.LpVariable.dicts("Cost",M,lowBound=0) #C[m[i,j]] C={1:cost_air,2:cost_truck} 1 = air, 2= truck
