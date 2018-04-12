@@ -179,7 +179,7 @@ costAir={1:cost_nda, 2:cost_sda} #{ori:{dest: ***, dest2:***} ori2: {dest:...}}
 trucktime= delivery_day #{} #delivery_day={ori:{dest: ***, dest2:***} ori2: {dest:...}}
 costTruck = cost_truck #{ori:{dest: ***, dest2:***} ori2: {dest:...}}
 d = demand #{3digit: [high, low], ...}'
-truckOK={1:day1, }
+truckOK={1:day1, 2:day2}
 # Code Section
 
 # Create the 'prob' object to contain the problem data
@@ -201,12 +201,12 @@ for a,a_dict in combo.items():
     
     varAH = pulp.LpVariable("AirHigh(%s,%s)"%(str(z),str(cl)), lowBound=0, cat='Binary')
     varAL = pulp.LpVariable("AirLow(%s,%s)"%(str(z),str(cl)), lowBound=0, cat='Binary')
-    if truckOK[shipmax][(z,cl)]==0:
+    if truckOK[shipmax][z][cl][0]==0:
         varTH=0
         varTL =0
     else:
-    varTH = pulp.LpVariable("TruckHigh(%s,%s)"%(str(z),str(cl)), lowBound=0, cat='Binary')
-    varTL = pulp.LpVariable("TruckLow(%s,%s)"%(str(z),str(cl)), lowBound=0, cat='Binary')
+        varTH = pulp.LpVariable("TruckHigh(%s,%s)"%(str(z),str(cl)), lowBound=0, cat='Binary')
+        varTL = pulp.LpVariable("TruckLow(%s,%s)"%(str(z),str(cl)), lowBound=0, cat='Binary')
 
     # a_dict['dvAH'] = varAH
     # a_dict['dvAL'] = varAL
@@ -215,7 +215,7 @@ for a,a_dict in combo.items():
     #value = [l,h]
     a_dict['dv']=[varAH, varAL, varTH, varTL]
     fn=(varAH*float(d[cl][0])*0.88+varAL*float(d[cl][1])*0.12)*float(costAir[shipmax][z][cl][0]) + (varTH*float(d[cl][0])*0.88+varTL*float(d[cl][1])*0.12)*float(costTruck[z][cl][0])
-    print(fn)
+    #print(fn)
     objFn.append(fn)
 
 
