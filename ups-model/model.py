@@ -116,6 +116,40 @@ for row in sheet.rows:
     demand[zipcode] = []
     for i in range(len(temp)):
         demand[zipcode].append(temp[i])
+        
+data = openpyxl.load_workbook('binary_1day.xlsx',read_only=True, data_only=True)
+sheet = data['Sheet1']
+
+day1 = {}
+
+for row in sheet.rows:
+    temp = []
+    for cell in row:
+        temp.append(cell.value)
+    #print(temp)
+    ori = temp[0]
+    temp.pop(0)
+    day1[ori] = {}
+    for i in range(len(title)):
+        day1[ori][title[i]] = []
+        day1[ori][title[i]].append(temp[i])
+        
+data = openpyxl.load_workbook('binary_2day.xlsx',read_only=True, data_only=True)
+sheet = data['Sheet1']
+
+day2 = {}
+
+for row in sheet.rows:
+    temp = []
+    for cell in row:
+        temp.append(cell.value)
+    #print(temp)
+    ori = temp[0]
+    temp.pop(0)
+    day2[ori] = {}
+    for i in range(len(title)):
+        day2[ori][title[i]] = []
+        day2[ori][title[i]].append(temp[i])
 
 # creating dictionary for facility F
 # structure would be like {3digit: cost, 3digit2: cost, ... }
@@ -144,7 +178,8 @@ M=10000000
 costAir={1:cost_nda, 2:cost_sda} #{ori:{dest: ***, dest2:***} ori2: {dest:...}}
 trucktime= delivery_day #{} #delivery_day={ori:{dest: ***, dest2:***} ori2: {dest:...}}
 costTruck = cost_truck #{ori:{dest: ***, dest2:***} ori2: {dest:...}}
-d = demand #{3digit: [high, low], ...}
+d = demand #{3digit: [high, low], ...}'
+truckOK={1:day1, }
 # Code Section
 
 # Create the 'prob' object to contain the problem data
@@ -163,9 +198,13 @@ for i in Zip:
 for a,a_dict in combo.items():
     z = a[0]
     cl = a[1]
-
+    
     varAH = pulp.LpVariable("AirHigh(%s,%s)"%(str(z),str(cl)), lowBound=0, cat='Binary')
     varAL = pulp.LpVariable("AirLow(%s,%s)"%(str(z),str(cl)), lowBound=0, cat='Binary')
+    if truckOK[shipmax][(z,cl)]==0:
+        varTH=0
+        varTL =0
+    else:
     varTH = pulp.LpVariable("TruckHigh(%s,%s)"%(str(z),str(cl)), lowBound=0, cat='Binary')
     varTL = pulp.LpVariable("TruckLow(%s,%s)"%(str(z),str(cl)), lowBound=0, cat='Binary')
 
@@ -175,7 +214,7 @@ for a,a_dict in combo.items():
     # a_dict['dvTL'] = varTL    
     #value = [l,h]
     a_dict['dv']=[varAH, varAL, varTH, varTL]
-    fn=(varAH*float(d[cl][0])*150+varAL*float(d[cl][1])*20)*float(costAir[shipmax][z][cl][0]) + (varTH*float(d[cl][0])*150+varTL*float(d[cl][1])*20)*float(costTruck[z][cl][0])
+    fn=(varAH*float(d[cl][0])*0.88+varAL*float(d[cl][1])*0.12)*float(costAir[shipmax][z][cl][0]) + (varTH*float(d[cl][0])*0.88+varTL*float(d[cl][1])*0.12)*float(costTruck[z][cl][0])
     print(fn)
     objFn.append(fn)
 
@@ -204,13 +243,13 @@ for a,a_dict in combo.items():
 
 
 #constraint 1
-for i in Zip:
-    for j in CustLoc:
-        prob+= pulp.lpSum(shipmax) <= shipmax + M*(1-combo[(i,j)]['dv'][0]) #air,high
-        prob+= pulp.lpSum(shipmax) <=shipmax + M*(1-combo[(i,j)]['dv'][1]) #air, low
-        prob += pulp.lpSum(float(trucktime[i][j][0])) <= shipmax + M*(1-combo[(i,j)]['dv'][2])#truck, high
-        prob += pulp.lpSum(float(trucktime[i][j][0])) <= shipmax + M*(1-combo[(i,j)]['dv'][3]) #truck, low
-         #for all i,j,m,k: t[i,j,m]<=1+M*(1-x[i,j,m,k])
+#for i in Zip:
+#    for j in CustLoc:
+#        prob+= pulp.lpSum(shipmax) <= shipmax + M*(1-combo[(i,j)]['dv'][0]) #air,high
+#        prob+= pulp.lpSum(shipmax) <=shipmax + M*(1-combo[(i,j)]['dv'][1]) #air, low
+#        prob += pulp.lpSum(float(trucktime[i][j][0])) <= shipmax + M*(1-combo[(i,j)]['dv'][2])#truck, high
+#        prob += pulp.lpSum(float(trucktime[i][j][0])) <= shipmax + M*(1-combo[(i,j)]['dv'][3]) #truck, low
+#         #for all i,j,m,k: t[i,j,m]<=1+M*(1-x[i,j,m,k])
 #     #for all i,j,m,k: t[i,j,m]<=2+M*(1-x[i,j,m,k]) 
 
 #all customers with demand fulfilled?

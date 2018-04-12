@@ -100,6 +100,23 @@ for row in sheet.rows:
         cost_sda[ori][title[i]] = []
         cost_sda[ori][title[i]].append(temp[i])
 
+data = openpyxl.load_workbook('binary_1day.xlsx',read_only=True, data_only=True)
+sheet = data['Sheet1']
+
+day1 = {}
+
+for row in sheet.rows:
+    temp = []
+    for cell in row:
+        temp.append(cell.value)
+    ori = temp[0]
+    temp.pop(0)
+    day1[ori] = {}
+    for i in range(len(title)):
+        day1[ori][title[i]] = []
+        day1[ori][title[i]].append(temp[i])
+print(day1)
+        
 # creating dictionary for demand of high value and value of each 3 digit
 # structure would be like {3digit: [high, low], ...}
 data = openpyxl.load_workbook('demandtestcase1.xlsx',read_only=True, data_only=True)
@@ -176,7 +193,7 @@ for a,a_dict in combo.items():
     #value = [l,h]
     a_dict['dv']=[varAH, varAL, varTH, varTL]
     fn=(varAH*float(d[cl][0])*150+varAL*float(d[cl][1])*20)*float(costAir[shipmax][z][cl][0]) + (varTH*float(d[cl][0])*150+varTL*float(d[cl][1])*20)*float(costTruck[z][cl][0])
-    print(fn)
+    #print(fn)
     objFn.append(fn)
 
 
