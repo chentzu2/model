@@ -232,7 +232,12 @@ for i in CustLoc:
 
 #constraint 3
 for i in Zip:
-    prob += pulp.lpSum(combo[(i,j)]['dv'] for j in CustLoc) <= M*FacilityLocations[i]
+    for j in CustLoc:
+        prob += pulp.lpSum(combo[(i,j)]['dv'][0]) <= FacilityLocations[i]
+        prob += pulp.lpSum(combo[(i,j)]['dv'][1]) <= FacilityLocations[i]
+        prob += pulp.lpSum(combo[(i,j)]['dv'][2]) <= FacilityLocations[i]
+        prob += pulp.lpSum(combo[(i,j)]['dv'][3]) <= FacilityLocations[i]
+        
 ## #for all j: sum[k,m,i](x[i,j,m,k])<=M[j]
 
 # Write out as a .LP file
