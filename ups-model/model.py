@@ -173,7 +173,7 @@ for row in sheet.rows:
 CustLoc=list(demand.keys()) #a set of customer locations
 Zip=title # set of 3-digit zip code
 shipmax = 1 #change from next day to 2 days - connect to GUI
-F =   24243148 #fixed cost to operate/open facility  
+F =  5000 #fixed cost to operate/open facility  
 travelMode = [1,2] #[air, truck]
 M=10000000
 costAir={1:cost_nda, 2:cost_sda} #{ori:{dest: ***, dest2:***} ori2: {dest:...}}
@@ -259,7 +259,8 @@ for a,a_dict in combo.items():
 #        prob+=pulp.lpSum(combo[(i,j)]['dv'] for i in Zip) >=1
 
 #constraint 2
-#obj['dv'] for route,obj in combo.items() if obj['customer'] == i
+#obj['dv'] for route,obj in combo.items() if obj['customer'] == i\
+#for every customer location, and product type, only one fac location and mode is allowed 
 for i in CustLoc:
     low=[]
     high=[]
@@ -267,8 +268,8 @@ for i in CustLoc:
         if combo[a]['customer']==i:
             low += [combo[a]['dv'][1], combo[a]['dv'][3]]
             high += [combo[a]['dv'][0], combo[a]['dv'][2]]
-        prob+= pulp.lpSum(sum(low))==1
-        prob+= pulp.lpSum(sum(high))==1
+    prob+= pulp.lpSum(sum(low))==1
+    prob+= pulp.lpSum(sum(high))==1
 
 #constraint 3
 for i in Zip:
