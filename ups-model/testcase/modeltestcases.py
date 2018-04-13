@@ -11,7 +11,7 @@ Project name: UPS Optimization Model for Network Design
 import pulp
 import math
 import openpyxl
-
+file = open('test.txt','w')
 data = openpyxl.load_workbook('list_zipcode_testcase1.xlsx',read_only=True, data_only=True)
 sheet = data['Sheet1']
 title = []
@@ -243,11 +243,19 @@ prob.solve(pulp.GUROBI())
 #prob.solve()
 
 print ("Status:", pulp.LpStatus[prob.status])
-
+file.write('Status: ')
+file.write(str(pulp.LpStatus[prob.status]))
+file.write('\n')
 for v in prob.variables():
+    #file.write(v.name)
     if v.varValue >0:
+        file.write(v.name+'='+str(v.varValue) +'\n')
         print(v.name, "=", v.varValue)
 
 #print out only locations that were planted. also print out #no.
   
 print ("Total Cost = ", pulp.value(prob.objective))
+file.write("Total Cost = ")
+file.write(str(pulp.value(prob.objective)))
+file.write('\n')
+file.close()
