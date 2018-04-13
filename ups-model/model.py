@@ -11,6 +11,7 @@ Project name: UPS Optimization Model for Network Design
 import pulp
 import math
 import openpyxl
+file = open('result.txt', 'w')
 
 data = openpyxl.load_workbook('list_zipcode.xlsx',read_only=True, data_only=True)
 sheet = data['Sheet1']
@@ -266,8 +267,8 @@ for i in CustLoc:
         if combo[a]['customer']==i:
             low += [combo[a]['dv'][1], combo[a]['dv'][3]]
             high += [combo[a]['dv'][0], combo[a]['dv'][2]]
-    prob+= pulp.lpSum(sum(low))==1
-    prob+= pulp.lpSum(sum(high))==1
+        prob+= pulp.lpSum(sum(low))==1
+        prob+= pulp.lpSum(sum(high))==1
 
 #constraint 3
 for i in Zip:
@@ -285,13 +286,19 @@ prob.writeLP("UPS_network.lp")
 # The problem is solved using PuLP's choice of Solver
 prob.solve(pulp.GUROBI())
 #prob.solve()
-
+        
+file.write('Status:" '+ str(pulp.LpStatus[prob.status]))
 print ("Status:", pulp.LpStatus[prob.status])
 
 for v in prob.variables():
     if v.varValue >0:
+        file.write(v.name + '= '+ str(v.varValue)+'\n')
         print(v.name, "=", v.varValue)
 
 #print out only locations that were planted. also print out #no.
   
 print ("Total Cost = ", pulp.value(prob.objective))
+file.write('total cost = ' + str(pulp.value(prob.objective)))
+
+file.close()
+
