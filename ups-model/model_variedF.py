@@ -38,7 +38,7 @@ for row in sheet.rows:
     cost_truck[ori] = {}
     for i in range(len(title)):
         cost_truck[ori][title[i]] = []
-        cost_truck[ori][title[i]].append(temp[i])
+        cost_truck[ori][title[i]].append(temp[i]/1000)
 
 
 
@@ -80,7 +80,7 @@ for row in sheet.rows:
     cost_nda[ori] = {}
     for i in range(len(title)):
         cost_nda[ori][title[i]] = []
-        cost_nda[ori][title[i]].append(temp[i])
+        cost_nda[ori][title[i]].append(temp[i]/1000)
 
 
 # creating dictionary for 2nd day air cost from ori to dest
@@ -99,7 +99,7 @@ for row in sheet.rows:
     cost_sda[ori] = {}
     for i in range(len(title)):
         cost_sda[ori][title[i]] = []
-        cost_sda[ori][title[i]].append(temp[i])
+        cost_sda[ori][title[i]].append(temp[i]/1000)
 
 # creating dictionary for demand of high value and value of each 3 digit
 # structure would be like {3digit: [high, low], ...}
@@ -165,7 +165,7 @@ for row in sheet.rows:
         temp.append(cell.value)
     zipcode = temp[0]
     temp.pop(0)
-    facility_cost[zipcode] = temp[0]
+    facility_cost[zipcode] = temp[0]/1000
     
 #pear optimization code
 
@@ -173,7 +173,7 @@ for row in sheet.rows:
 CustLoc=list(demand.keys()) #a set of customer locations
 Zip=title # set of 3-digit zip code
 shipmax = 1 #change from next day to 2 days - connect to GUI
-F =  100000 #fixed cost to operate/open facility  
+#F =  100000 #fixed cost to operate/open facility  
 travelMode = [1,2] #[air, truck]
 M=10000000
 costAir={1:cost_nda, 2:cost_sda} #{ori:{dest: ***, dest2:***} ori2: {dest:...}}
@@ -225,7 +225,7 @@ FacilityLocations={}
 for j in Zip:
     dvLoc = pulp.LpVariable("Zip(%s)"%str(j), lowBound=0, upBound=1, cat='Binary')
     FacilityLocations[j] = dvLoc
-    objFn.append(dvLoc*F)
+    objFn.append(dvLoc*facility_cost[j])
 
 prob += pulp.lpSum(objFn), "Total Cost"
 
