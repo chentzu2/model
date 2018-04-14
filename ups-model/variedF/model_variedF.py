@@ -26,12 +26,11 @@ data = openpyxl.load_workbook('cost_matrix_truck.xlsx',read_only=True, data_only
 sheet = data['cost']
 
 cost_truck = {}
-first=0
+
 #inputting cost for the truck {i1:{j1:C[i1,j1,m],j2:C[i1,j2,m]...}, i2:{j1:C[i2,j1,m], j2:C[i2,j2,m]...}....} (m=T)
 # structure would be like {ori:{dest: ***, dest2:***} ori2: {dest:...}}
 for row in sheet.rows:
     temp = []
-    first+=1
     for cell in row:
         temp.append(cell.value)
     ori = temp[0]
@@ -40,10 +39,8 @@ for row in sheet.rows:
     cost_truck[ori] = {}
     for i in range(len(title)):
         cost_truck[ori][title[i]] = []
-        if first ==1:
-            cost_truck[ori][title[i]].append(temp[i])
-        else:
-            cost_truck[ori][title[i]].append(temp[i]/1000)
+        cost_truck[ori][title[i]].append(temp[i])
+
         
 
 
@@ -75,10 +72,9 @@ data = openpyxl.load_workbook('cost_matrix_nda.xlsx',read_only=True, data_only=T
 sheet = data['cost']
 
 cost_nda = {}
-first=0
+
 for row in sheet.rows:
     temp = []
-    first+=1
     for cell in row:
         temp.append(cell.value)
     ori = temp[0]
@@ -86,10 +82,8 @@ for row in sheet.rows:
     cost_nda[ori] = {}
     for i in range(len(title)):
         cost_nda[ori][title[i]] = []
-        if first ==1:
-            cost_nda[ori][title[i]].append(temp[i])
-        else:
-            cost_nda[ori][title[i]].append(temp[i]/1000)
+        cost_nda[ori][title[i]].append(temp[i])
+
 
 
 # creating dictionary for 2nd day air cost from ori to dest
@@ -98,10 +92,9 @@ data = openpyxl.load_workbook('cost_matrix_sda.xlsx',read_only=True, data_only=T
 sheet = data['cost']
 
 cost_sda = {}
-first=0
+
 for row in sheet.rows:
     temp = []
-    first+=1
     for cell in row:
         temp.append(cell.value)
     ori = temp[0]
@@ -109,10 +102,8 @@ for row in sheet.rows:
     cost_sda[ori] = {}
     for i in range(len(title)):
         cost_sda[ori][title[i]] = []
-        if first ==1:
-            cost_sda[ori][title[i]].append(temp[i])
-        else:
-            cost_sda[ori][title[i]].append(temp[i]/1000)
+        cost_sda[ori][title[i]].append(temp[i])
+
 
 # creating dictionary for demand of high value and value of each 3 digit
 # structure would be like {3digit: [high, low], ...}
@@ -171,18 +162,15 @@ data = openpyxl.load_workbook('facility_cost.xlsx',read_only=True, data_only=Tru
 sheet = data['Demand']
 
 facility_cost = {}
-first=0
+
 for row in sheet.rows:
     temp = []
     for cell in row:
         temp.append(cell.value)
     zipcode = temp[0]
     temp.pop(0)
-    first+=1
-    if first ==1:
-        facility_cost[zipcode] = temp[0]
-    else:
-        facility_cost[zipcode] = temp[0]/1000
+    facility_cost[zipcode] = temp[0]
+
     
 #pear optimization code
 
@@ -234,7 +222,7 @@ for a,a_dict in combo.items():
     a_dict['dv']=[varAH, varAL, varTH, varTL]
     fn=(varAH*float(d[cl][0])*0.88+varAL*float(d[cl][1])*0.12)*float(costAir[shipmax][z][cl][0]) + (varTH*float(d[cl][0])*0.88+varTL*float(d[cl][1])*0.12)*float(costTruck[z][cl][0])
     #print(fn)
-    objFn.append(fn)
+    objFn.append(fn/1000)
 
 
 FacilityLocations={}
@@ -242,7 +230,7 @@ FacilityLocations={}
 for j in Zip:
     dvLoc = pulp.LpVariable("Zip(%s)"%str(j), lowBound=0, upBound=1, cat='Binary')
     FacilityLocations[j] = dvLoc
-    objFn.append(dvLoc*facility_cost[j])
+    objFn.append(dvLoc*facility_cost[j]/1000)
 
 prob += pulp.lpSum(objFn), "Total Cost"
 
