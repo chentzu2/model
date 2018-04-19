@@ -4,6 +4,7 @@ README
  * Introduction
  * Requirements
  * Output Files
+ * GUI Failure
  
  ---------------------
  INTRODUCTION 
@@ -37,7 +38,9 @@ README
  * Truck Shipment costs between 2 locations
  * Cost to build a facility at each locations
  * List of locations
- * Demand at each end location 
+ * Demand at each end location
+ * Binary values whether 2 locations qualify for 1-day truck shipment
+ * Binary values whether 2 locations qualify for 2-days truck shipment 
  
 ---------------------
 OUTPUT FILES 
@@ -62,5 +65,30 @@ OUTPUT FILES
 				Zip(001) = 1.0 means facility 1 will be opened
 				Zip(176) = 1.0 means facility will be opened at 176xx
 									
-				
+---------------------
+(IN CASE OF) GUI FAILURE				
  
+---------------------
+
+all locations for changes in the code is commented with *****INPUT CHANGE*****
+To change file inputs, change the names of the file within the openpyxl.load_workbook('______',...)
+
+For location list: line 14
+For truck shipment cost: line 22
+For 1-day air shipment cost: line 39
+For 2-day air shipment cost: line 56
+For demand at customer: line 73
+For binary 1-day truck shipment: line 89
+For binary 2-day truck shipment: line 105
+For facility cost per location: line 120
+
+To change data parameters:
+
+For 1-day or 2-day delivery: line 148
+	shipmax = 1 for 1-day, shipmax = 2 for 2-day
+For budget: line 149
+	P = budget
+For average high value good cost: line 151
+	HIGH_VAL = value
+For average high value good cost: line 152
+	LOW_VAL = value

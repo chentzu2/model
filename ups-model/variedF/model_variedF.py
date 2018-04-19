@@ -180,7 +180,7 @@ Zip=title # set of 3-digit zip code
 shipmax = 1 #change from next day to 2 days - connect to GUI
 #F =  100000 #fixed cost to operate/open facility  
 travelMode = [1,2] #[air, truck]
-M=10000000
+P=100000000
 costAir={1:cost_nda, 2:cost_sda} #{ori:{dest: ***, dest2:***} ori2: {dest:...}}
 trucktime= delivery_day #{} #delivery_day={ori:{dest: ***, dest2:***} ori2: {dest:...}}
 costTruck = cost_truck #{ori:{dest: ***, dest2:***} ori2: {dest:...}}
@@ -230,7 +230,7 @@ FacilityLocations={}
 for j in Zip:
     dvLoc = pulp.LpVariable("Zip(%s)"%str(j), lowBound=0, upBound=1, cat='Binary')
     FacilityLocations[j] = dvLoc
-    objFn.append(dvLoc*facility_cost[j]/1000)
+
 
 prob += pulp.lpSum(objFn), "Total Cost"
 
@@ -283,7 +283,10 @@ for i in Zip:
         prob += pulp.lpSum(combo[(i,j)]['dv'][1]) <= FacilityLocations[i]
         prob += pulp.lpSum(combo[(i,j)]['dv'][2]) <= FacilityLocations[i]
         prob += pulp.lpSum(combo[(i,j)]['dv'][3]) <= FacilityLocations[i]
-        
+  
+prob += pulp.lpSum(FacilityLocations[j] * facility_cost[j] for j in Zip) <= P
+
+      
 ## #for all j: sum[k,m,i](x[i,j,m,k])<=M[j]
 
 # Write out as a .LP file
